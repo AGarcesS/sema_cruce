@@ -36,13 +36,14 @@ int main(){
 
     gettimeofday (&next_activation, NULL);   
 
-    printf("Principal en verde, secundaria en rojo\n"); 
+    printf("Principal en verde, secundaria en rojo: cruza peaton2\n"); 
 
     while(scanf("%d %d %d", &peaton1, &peaton2, &espira) == 3){
-        fsm_fire(fsm_cruce);
-        gettimeofday (&next_activation, NULL);
-        timeval_add (&next_activation, &next_activation, &clk_period);
-        delay_until (&next_activation);        
+      printf("------------------------------------------------------------------------\n");
+      fsm_fire(fsm_cruce);
+      gettimeofday (&next_activation, NULL);
+      timeval_add (&next_activation, &next_activation, &clk_period);
+      delay_until (&next_activation);               
     }
 
     return 1;

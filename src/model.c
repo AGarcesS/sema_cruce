@@ -2,17 +2,19 @@
 #include <time.h>
 #include "fsm.h"
 
-#define TIME_PEATON 200
+#define TIME_AMARILLO 200
+#define TIME_VERDE 800
 
 //estados
 enum cruce_state {
     VERDE1_ROJO2,
+    AMARILLO1_ROJO2,
     ROJO1_VERDE2,
-    ROJO1_ROJO2
+    ROJO1_AMARILLO2
 };
 
 //funciones de utilidad
-static int timer = 0;
+static int timer = 1;
 static void timer_isr (union sigval arg) { timer = 1; }
 static void timer_start (int ms){
     timer_t timerid;
@@ -33,61 +35,58 @@ static void timer_start (int ms){
 //funciones de guarda
 static int peaton1 = 0, peaton2 = 0, espira = 0;
 
-static int llegada_peaton2_1 (fsm_t* this) { return (peaton2); }
-static int llegada_peaton1_espira (fsm_t* this) { return (peaton1 || espira) && !peaton2; }
-static int fin_tiempo_peaton1_espira (fsm_t* this) { return (!peaton1 && !peaton2 && timer); }
-static int llegada_peaton1 (fsm_t* this) { return (peaton1); }
-static int llegada_peaton2_2 (fsm_t* this) { return (!peaton1 && peaton2); }
-static int fin_tiempo_peaton1 (fsm_t* this) { return (timer); }
+static int llegada_peaton1_espira (fsm_t* this) { return (peaton1 || espira) && timer; }
+static int fin_tiempo (fsm_t* this) { return timer; }
 
 //funciones de salida
-static int semaforo_principal = 1, semaforo_secundaria = 0;
+enum semaforo_output {
+    VERDE,
+    AMARILLO,
+    ROJO
+};
 
-static void mantener_verde1_rojo2 (fsm_t* this){
-    semaforo_principal = 1;
-    semaforo_secundaria = 0;
-    peaton2 = 0;
-    printf("Se mantiene principal en verde, secundaria en rojo\n");
+static int semaforo_principal = VERDE, semaforo_secundaria = ROJO;
+
+static void cambio_amarillo1_rojo2 (fsm_t* this){
+    semaforo_principal = AMARILLO;
+    semaforo_secundaria = ROJO;
+    timer = 0;
+    timer_start (TIME_AMARILLO);
+    printf("Principal en amarillo, secundaria en rojo\n");
 }
 
 static void cambio_rojo1_verde2 (fsm_t* this){
-    semaforo_principal = 0;
-    semaforo_secundaria = 1;
+    semaforo_principal = ROJO;
+    semaforo_secundaria = VERDE;
     peaton1 = 0;
     espira = 0;
-    timer_start (TIME_PEATON);
-    printf("Principal en rojo, secundaria en verde\n");
+    timer = 0;
+    timer_start (TIME_VERDE);
+    printf("Principal en rojo, secundaria en verde: cruza peaton1 y/o espira\n");
+}
+
+static void cambio_rojo1_amarillo2 (fsm_t* this){
+    semaforo_principal = ROJO;
+    semaforo_secundaria = AMARILLO;
+    timer = 0;
+    timer_start (TIME_AMARILLO);
+    printf("Principal en rojo, secundaria en amarillo\n");
 }
 
 static void cambio_verde1_rojo2 (fsm_t* this){
-    semaforo_principal = 1;
-    semaforo_secundaria = 0;
-    timer = 0;
-    printf("Principal en verde, secundaria en rojo\n");
-}
-
-static void mantener_rojo1_verde2 (fsm_t* this){
-    semaforo_principal = 0;
-    semaforo_secundaria = 1;
-    peaton1 = 0;
-    printf("Se mantiene principal en rojo, secundaria en verde\n");
-}
-
-static void cambio_rojo1_rojo2 (fsm_t* this){
-    semaforo_principal = 0;
-    semaforo_secundaria = 0;
+    semaforo_principal = VERDE;
+    semaforo_secundaria = ROJO;
     peaton2 = 0;
-    timer_start (TIME_PEATON);
-    printf("Principal en rojo, secundaria en rojo\n");
+    timer = 0;
+    timer_start (TIME_VERDE);
+    printf("Principal en verde, secundaria en rojo: cruza peaton2\n");
 }
 
 //tabla de transiciones
 static fsm_trans_t cruce_tt[] = {
-    { VERDE1_ROJO2, llegada_peaton2_1, VERDE1_ROJO2, mantener_verde1_rojo2  },
-    { VERDE1_ROJO2, llegada_peaton1_espira, ROJO1_VERDE2, cambio_rojo1_verde2  },
-    { ROJO1_VERDE2, fin_tiempo_peaton1_espira, VERDE1_ROJO2,  cambio_verde1_rojo2 }, 
-    { ROJO1_VERDE2, llegada_peaton1, ROJO1_VERDE2,  mantener_rojo1_verde2 },    
-    { ROJO1_VERDE2, llegada_peaton2_2, ROJO1_ROJO2,  cambio_rojo1_rojo2 },
-    { ROJO1_ROJO2, fin_tiempo_peaton1, VERDE1_ROJO2,  cambio_verde1_rojo2 },
+    { VERDE1_ROJO2, llegada_peaton1_espira, AMARILLO1_ROJO2, cambio_amarillo1_rojo2  },
+    { AMARILLO1_ROJO2, fin_tiempo, ROJO1_VERDE2, cambio_rojo1_verde2  },
+    { ROJO1_VERDE2, fin_tiempo, ROJO1_AMARILLO2,  cambio_rojo1_amarillo2 }, 
+    { ROJO1_AMARILLO2, fin_tiempo, VERDE1_ROJO2,  cambio_verde1_rojo2 },
     {-1, NULL, -1, NULL },
 };
