@@ -29,22 +29,22 @@ void delay_until (struct timeval* next_activation)
 
 int main(){
 
-    struct timeval clk_period = { 0, 250 * 1000 };
-    struct timeval next_activation;
+  struct timeval clk_period = { 0, 250 * 1000 };
+  struct timeval next_activation;
 
-    fsm_t* fsm_cruce = fsm_new(cruce_tt);
+  fsm_t* fsm_cruce = fsm_new(cruce_tt);
 
-    gettimeofday (&next_activation, NULL);   
+  gettimeofday (&next_activation, NULL);   
 
-    printf("Principal en verde, secundaria en rojo: cruza peaton2\n"); 
+  printf("Principal en verde, secundaria en rojo: cruza peaton2\n"); 
 
-    while(scanf("%d %d %d", &peaton1, &peaton2, &espira) == 3){
-      printf("------------------------------------------------------------------------\n");
-      fsm_fire(fsm_cruce);
-      gettimeofday (&next_activation, NULL);
-      timeval_add (&next_activation, &next_activation, &clk_period);
-      delay_until (&next_activation);               
-    }
+  while(scanf("%d %d %d", &peaton1, &peaton2, &espira) == 3){
+    printf("------------------------------------------------------------------------\n");
+    fsm_fire(fsm_cruce);
+    gettimeofday (&next_activation, NULL);
+    timeval_add (&next_activation, &next_activation, &clk_period);
+    delay_until (&next_activation);               
+  }
 
-    return 1;
+  return 1;
 }
