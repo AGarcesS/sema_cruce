@@ -23,6 +23,8 @@ active proctype fsm() {
 			secundaria_verde = 0; secundaria_amarillo = 0; secundaria_rojo = 1; 
 			estado = 1; 
 			next1 = 0;
+			peaton1=0;
+			espira=0;
             printf("principal en amarillo, secundaria en rojo\n");
 
 		:: peaton2 -> 
@@ -39,7 +41,7 @@ active proctype fsm() {
 			principal_verde = 0; principal_amarillo = 0; principal_rojo = 1; 
 			secundaria_verde = 1; secundaria_amarillo = 0; secundaria_rojo = 0;
 			estado = 2; 
-			peaton1 = 0; espira = 0; next1 = 0;
+			next1 = 0;
             printf("principal en rojo, secundaria en verde: cruza peaton1 y/o espira\n");   
         fi
     }	
@@ -93,4 +95,24 @@ ltl peaton2_liveness {
 
 ltl espira_liveness {
 	[]<> (espira) -> []<> (!espira)
+}
+
+ltl seguridad_semaforo {
+	[](!(principal_verde==1&&secundaria_verde==1))
+}
+
+ltl uno_rojo{
+	[](principal_rojo==1 || secundaria_rojo==1)
+}
+
+ltl respuesta_peaton1{
+	[]<>next1 -> [](peaton1-><>principal_rojo==1)
+}
+
+ltl respuesta_peaton2{
+	[]<>next1 -> [](peaton2-><>secundaria_rojo==1)
+}
+
+ltl respuesta_espira{
+	[]<>next1 -> [](espira-><>principal_rojo==1)
 }
