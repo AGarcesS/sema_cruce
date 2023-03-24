@@ -98,21 +98,21 @@ ltl espira_liveness {
 }
 
 ltl seguridad_semaforo {
-	[](!(principal_verde==1&&secundaria_verde==1))
+	[](!(principal_verde&&secundaria_verde))
 }
 
 ltl uno_rojo{
-	[](principal_rojo==1 || secundaria_rojo==1)
+	[](principal_rojo || secundaria_rojo)
 }
 
 ltl respuesta_peaton1{
-	[]<>next1 -> [](peaton1-><>principal_rojo==1)
+	[]<>next1 -> [](peaton1-><>principal_rojo)
 }
 
 ltl respuesta_peaton2{
-	[]<>next1 -> [](peaton2-><>secundaria_rojo==1)
+	[]<>next1 -> [](peaton2-><>secundaria_rojo)
 }
 
 ltl respuesta_espira{
-	[]<>next1 -> [](espira-><>principal_rojo==1)
+	[]<>next1 -> [](espira-><>principal_rojo)
 }
