@@ -36,7 +36,7 @@ static void timer_start (int ms){
 static int peaton1 = 0, peaton2 = 0, espira = 0;
 
 static int llegada_peaton1_espira_1 (fsm_t* this) { return (peaton1 || espira) && timer; }
-static int llegada_peaton2 (fsm_t* this) { return peaton2; }
+static int llegada_peaton2 (fsm_t* this) { return peaton2 && !timer; }
 static int llegada_peaton1_espira_2 (fsm_t* this) { return (peaton1 || espira) && !timer; }
 static int fin_tiempo (fsm_t* this) { return timer; }
 
