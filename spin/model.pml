@@ -27,7 +27,7 @@ active proctype fsm() {
 			espira=0;
             printf("principal en amarillo, secundaria en rojo\n");
 
-		:: peaton2 -> 
+		:: (peaton2&&!next1) -> 
 			principal_verde = 1; principal_amarillo = 0; principal_rojo = 0; 
 			secundaria_verde = 0; secundaria_amarillo = 0; secundaria_rojo = 1; 
 			estado = 0; 
